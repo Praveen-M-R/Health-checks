@@ -132,7 +132,13 @@ STATICFILES_DIRS = [
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+import os
+from dotenv import load_dotenv
 
+load_dotenv("./.envvar")
+
+EMAIL_HOST = os.getenv("")
+EMAIL_HOST_PASSWORD=os.getenv("")
 # Celery settings
 CELERY_BROKER_URL = "redis://localhost:6379/0"
 CELERY_ACCEPT_CONTENT = ["json"]
@@ -143,6 +149,6 @@ EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = "p4413020@gmail.com"
-EMAIL_HOST_PASSWORD = "rmyi pfww rbun lska"  # Use App Password if using Gmail
+EMAIL_HOST_USER = EMAIL_HOST
+EMAIL_HOST_PASSWORD = EMAIL_HOST_PASSWORD  # Use App Password if using Gmail
 

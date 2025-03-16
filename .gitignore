@@ -2,3 +2,4 @@ myenv
 __pycache__/
 server.logs
 worker_server.logs
+.envvar
