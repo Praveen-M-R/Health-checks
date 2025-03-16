@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Details & Statistics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 10px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logs-container {
+            width: 80%;
+            margin-top: 20px;
+            margin: 10px auto;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        .chart-container {
+            width: 60%;
+            height: 200px;
+            margin-top: 20px;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            width: 60%;
+        }
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: red;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .show-popup-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin-left: auto;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .show-popup-btn:hover {
+            background-color: #0056b3;
+        }
+        .statsoverview{
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div>
+        <h2>Check Details: {{ check.name }}</h2>
+        <p><strong>Ping URL:</strong> <code>http://127.0.0.1:8000/ping/{{ check.ping_url }}</code></p>
+        <p><strong>Last Ping:</strong> {{ check.last_ping|default:"Never" }}</p>
+        <p><strong>Status:</strong> {% if check.is_up %}✅ UP{% else %}❌ DOWN{% endif %}</p>
+    </div>
+    <button class="show-popup-btn" onclick="showPopup()">Show Statistics</button>
+</div>
+
+<div class="logs-container">
+    <h3>Logs:</h3>
+    {% if logs %}
+        <ul>
+            {% for log in logs %}
+                <li>{{ log.timestamp }} - {% if log.status %}✅ UP{% else %}❌ DOWN{% endif %}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No logs available.</p>
+    {% endif %}
+    <a href="{% url 'dashboard' %}">Back to Dashboard</a>
+</div>
+
+<div class="popup-overlay" id="popupOverlay" onclick="closePopup()"></div>
+<div class="popup" id="statsPopup">
+    <h2>Statistics</h2>
+    <div class="statsoverview">
+    <p>Total Pings: <span id="totalPings"></span></p>
+    <p>Total UP: <span id="totalUp"></span></p>
+    <p>Total DOWN: <span id="totalDown"></span></p></div>
+    <div class="chart-container">
+        <canvas id="statusChart"></canvas>
+    </div>
+    <div class="filter-buttons">
+        <button class="filter-button" onclick="updateChart('today')">Today</button>
+        <button class="filter-button" onclick="updateChart('this_week')">This Week</button>
+        <button class="filter-button" onclick="updateChart('this_month')">This Month</button>
+    </div>
+    <button class="close-btn" onclick="closePopup()">Close</button>
+</div>
+
+<script>
+    function showPopup() {
+        document.getElementById("statsPopup").style.display = "block";
+        document.getElementById("popupOverlay").style.display = "block";
+    }
+
+    function closePopup() {
+        document.getElementById("statsPopup").style.display = "none";
+        document.getElementById("popupOverlay").style.display = "none";
+    }
+
+    let stats = {
+        "today": { up: {{ stats.today.0.count|default:0 }}, down: {{ stats.today.1.count|default:0 }} },
+        "this_week": { up: {{ stats.this_week.0.count|default:0 }}, down: {{ stats.this_week.1.count|default:0 }} },
+        "this_month": { up: {{ stats.this_month.0.count|default:0 }}, down: {{ stats.this_month.1.count|default:0 }} }
+    };
+    
+    function updateChart(period) {
+        let totalUp = stats[period].up;
+        let totalDown = stats[period].down;
+        let totalPings = totalUp + totalDown;
+
+        document.getElementById("totalPings").innerText = totalPings;
+        document.getElementById("totalUp").innerText = totalUp;
+        document.getElementById("totalDown").innerText = totalDown;
+
+        chart.data.datasets[0].data = [totalUp, totalDown];
+        chart.update();
+    }
+
+    let ctx = document.getElementById('statusChart').getContext('2d');
+    let chart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ["UP", "DOWN"],
+            datasets: [{
+                label: 'Status Overview',
+                data: [stats.today.up, stats.today.down],
+                backgroundColor: ['green', 'red']
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        updateChart("today");
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,21 @@
+{% extends "checks/base.html" %}
+
+{% block title %}Login - Health Checks{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="login-wrapper">
+        <h2 class="login-title">Login</h2>
+        <form method="post" class="login-form">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.as_p }}
+            </div>
+            <button type="submit" class="btn btn-success">Login</button>
+        </form>
+        <div class="register-link">
+            <a href="{% url 'register' %}">Don't have an account? Register</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

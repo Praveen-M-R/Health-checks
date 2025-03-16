@@ -1,0 +1,38 @@
+{% extends "checks/base.html" %}
+{% block content %}
+<a href="{% url 'dashboard' %}" class="back-button">⬅ Back to Dashboard</a>
+<div class="container1">
+    <div class="failed-checks-card">
+        <h2 class="failed-checks-title">Failed Checks</h2>
+
+        {% if failed_checks %}
+            <table class="failed-checks-table">
+                <thead>
+                    <tr>
+                        <th>Check Name</th>
+                        <th>Failed At</th>
+                        <th>Email Sent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for failed in failed_checks %}
+                        <tr>
+                            <td><strong>{{ failed.check_name.name  }}</strong></td>
+                            <td>{{ failed.failed_at }}</td>
+                            <td>
+                                {% if failed.email_sent %}
+                                    <span class="status success">✅ Sent</span>
+                                {% else %}
+                                    <span class="status error">❌ Not Sent</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-failed-checks">No failed checks.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

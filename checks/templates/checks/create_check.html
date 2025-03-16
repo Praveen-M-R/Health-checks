@@ -1,0 +1,86 @@
+{% extends "checks/base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="form-card">
+        <div class="form-header">
+            <h3>Create a New Check</h3>
+        </div>
+        <div class="form-body">
+            <form method="post">
+                {% csrf_token %}
+
+                <!-- Name -->
+                <div class="form-group">
+                    <label class="form-label">{{ form.name.label }}</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <div class="error-text">{{ form.name.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Recipient -->
+                <div class="form-group">
+                    <label class="form-label">{{ form.recipient.label }}</label>
+                    {{ form.recipient }}
+                    {% if form.recipient.errors %}
+                        <div class="error-text">{{ form.recipient.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Duration (Days, Hours, Minutes) -->
+                <div class="form-group">
+                    <label class="form-label">Duration</label>
+                    <div class="row">
+                        <div class="col">
+                            {{ form.duration_days }}
+                        </div>
+                        <div class="col">
+                            {{ form.duration_hours }}
+                        </div>
+                        <div class="col">
+                            {{ form.duration_minutes }}
+                        </div>
+                    </div>
+                    {% if form.duration_days.errors or form.duration_hours.errors or form.duration_minutes.errors %}
+                        <div class="error-text">Invalid duration input.</div>
+                    {% endif %}
+                </div>
+
+                <!-- Grace Period (Days, Minutes) -->
+                <div class="form-group">
+                    <label class="form-label">Grace Period</label>
+                    <div class="row">
+                        <div class="col">
+                            {{ form.grace_days }}
+                        </div>
+                        <div class="col">
+                            {{ form.grace_hours }}
+                        </div>
+                        <div class="col">
+                            {{ form.grace_minutes }}
+                        </div>
+                    </div>
+                    {% if form.grace_days.errors or form.grace_minutes.errors or form.grace_hours.errors%}
+                        <div class="error-text">Invalid grace period input.</div>
+                    {% endif %}
+                </div>
+
+                <!-- Notification Channel -->
+                <div class="form-group">
+                    <label class="form-label">{{ form.channel.label }}</label>
+                    {{ form.channel }}
+                    {% if form.channel.errors %}
+                        <div class="error-text">{{ form.channel.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn-primary">Create Check</button>
+            </form>
+        </div>
+        <div class="form-footer">
+            <a href="{% url 'dashboard' %}" class="btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

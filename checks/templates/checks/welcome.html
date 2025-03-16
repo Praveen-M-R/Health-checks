@@ -1,0 +1,23 @@
+{% extends "checks/base.html" %}
+
+{% block title %}Welcome to Health Checks{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="welcome-wrapper">
+        <h1 class="welcome-title">Welcome to Health Checks</h1>
+        <p class="welcome-subtitle">
+            Monitor your services and stay updated with real-time health checks.
+        </p>
+        
+        <div class="button-group">
+            <a href="{% url 'login' %}" class="btn btn-primary">
+                Login
+            </a>
+            <a href="{% url 'register' %}" class="btn btn-secondary">
+                Register
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

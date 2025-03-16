@@ -1,0 +1,117 @@
+{% extends "checks/base.html" %}
+
+{% block title %}Dashboard - Health Checks{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Top Navigation Bar with Logout Button -->
+    <div class="dashboard-header">
+        <h2>Welcome, {{ user.username }}!</h2>
+        <a href="{% url 'logout' %}" class="logout-button"> Logout</a>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="stats-container">
+        <div class="stat-card">
+            <h4>Total Checks</h4>
+            <p>{{ stats.total_checks }}</p>
+        </div>
+        <div class="stat-card">
+            <h4>Active Checks</h4>
+            <p class="up">{{ stats.active_checks }}</p>
+        </div>
+        <div class="stat-card">
+            <h4>Failed Checks</h4>
+            <p class="down">{{ stats.failed_checks }}</p>
+        </div>
+        <div class="stat-card">
+            <h4>Last Failure</h4>
+            <p>{{ stats.last_failed_check|default:"No failures yet" }}</p>
+        </div>
+    </div>
+
+    <!-- Create New Check Button -->
+    <a href="{% url 'create_check' %}" class="create-check-button">Create New Check</a>
+
+    <!-- Your Checks Section -->
+    <div class="checks-card">
+        <div class="checks-header">
+            <h3>Your Checks</h3>
+            <a href="{% url 'failed_checks' %}" class="failed-checks-button"> Failed Checks</a>
+        </div>
+
+        {% if checks %}
+            <table class="checks-table">
+                <thead>
+                    <tr>
+                        <th>Check Name</th>
+                        <th>Ping URL</th>
+                        <th>Last Ping</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for check in checks %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'check_detail' check.id %}" class="check-name">
+                                    {{ check.name }}
+                                </a>
+                            </td>
+                            <td><code>http://127.0.0.1:8000/ping/{{ check.ping_url }}/</code></td>
+                            <td>{{ check.last_ping|default:"Never" }}</td>
+                            <td>
+                                {% if check.is_up %}
+                                    <span class="status up"> UP</span>
+                                {% else %}
+                                    <span class="status down"> DOWN</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="no-checks">You have no checks yet.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .stats-container {
+        display: flex;
+        justify-content: space-around;
+        margin: 20px 0;
+    }
+
+    .stat-card {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        width: 22%;
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card h4 {
+        margin: 0;
+        font-size: 16px;
+        color: #555;
+    }
+
+    .stat-card p {
+        font-size: 20px;
+        font-weight: bold;
+        margin-top: 5px;
+    }
+
+    .up {
+        color: green;
+    }
+
+    .down {
+        color: red;
+    }
+</style>
+
+{% endblock %}
